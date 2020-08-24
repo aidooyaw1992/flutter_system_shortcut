@@ -17,6 +17,10 @@ Thanks to **[Rody Davis](https://github.com/rodydavis)** for IOS implementation.
 <uses-permission android:name="android.permission.BLUETOOTH"/>
 <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"/>
 ```
+### to acquire notification policy permission you need to add these two permissions in your AndroidManifext.xml file
+```
+<uses-permission android:name="android.permission.ACCESS_NOTIFICATION_POLICY"/>
+```
 ### Make this import
 import 'package:fl_sys_shortcut/fl_sys_shortcut.dart';
 
@@ -32,7 +36,7 @@ import 'package:fl_sys_shortcut/fl_sys_shortcut.dart';
 
 ### turn on Silent Mode using this function
 
-> await FlSysShortcut.silentMode();// toggle bluetooth in android
+> await FlSysShortcut.silentMode();// toggle silent mode in android
 
 # Getters
 
