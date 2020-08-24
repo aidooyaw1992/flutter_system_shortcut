@@ -62,6 +62,9 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
       case "silentMode":
         silentMode();
         break;
+      case "checkSilentMode":
+        result.success(checkSilentMode());
+        break;
       case "checkBluetooth":
         result.success(checkBluetooth());
         break;
@@ -82,6 +85,33 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
     WifiManager wifiManager = (WifiManager) this.activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     return wifiManager.isWifiEnabled();
   }
+
+  private boolean checkSilentMode() {
+    if (checkNotificationPolicyPermission()) {
+      NotificationManager notificationManager = (NotificationManager) this.activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager.isNotificationPolicyAccessGranted()) {
+        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+        AudioManager audioManager = (AudioManager) this.activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        int ringerMode = audioManager.getRingerMode();
+        return ringerMode == AudioManager.RINGER_MODE_SILENT;
+      } else {
+        Log.d(TAG, "silentMode: notification access policy wasnt granted");
+        // Open Setting screen to ask for permisssion
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+          intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+        }
+        activity.startActivityForResult(intent, ON_DO_NOT_DISTURB_CALLBACK_CODE);
+      }
+
+    } else {
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        ActivityCompat.requestPermissions(this.activity, new String[]{Manifest.permission.ACCESS_NOTIFICATION_POLICY}, DO_NOT_DISTURB_REQUEST_CODE);
+      }
+    }
+    return false;
+  }
   private void silentMode() {
     if(checkNotificationPolicyPermission()){
       
@@ -91,6 +121,7 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
           notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
           AudioManager audioManager = (AudioManager) this.activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
           audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+
       }else {
         Log.d(TAG, "silentMode: notification access policy wasnt granted");
         // Open Setting screen to ask for permisssion
