@@ -59,8 +59,9 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
       case "bluetooth":
         bluetooth();
         break;
-      case "silentMode":
-        silentMode();
+      case "setMode":
+        final String mode = call.argument("mode");
+        setMode(mode);
         break;
       case "checkSilentMode":
         result.success(checkSilentMode());
@@ -72,6 +73,40 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
         result.notImplemented();
     }
   }
+
+  private void setMode(String mode) {
+    Log.d(TAG, "setMode: "+mode);
+    if(checkNotificationPolicyPermission()){
+
+      NotificationManager notificationManager = (NotificationManager) this.activity.getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager.isNotificationPolicyAccessGranted()) {
+        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+        AudioManager audioManager = (AudioManager) this.activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+        if(mode.equals("silent")){
+          audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+        }else{
+          audioManager.setRingerMode(AudioManager.RINGER_MODE_NORMAL);
+        }
+
+      }else {
+        Log.d(TAG, "silentMode: notification access policy wasnt granted");
+        // Open Setting screen to ask for permisssion
+        Intent intent = null;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+          intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+        }
+        activity.startActivityForResult( intent, ON_DO_NOT_DISTURB_CALLBACK_CODE );
+
+      }
+
+    }else{
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        ActivityCompat.requestPermissions(this.activity, new String[] {Manifest.permission.ACCESS_NOTIFICATION_POLICY}, DO_NOT_DISTURB_REQUEST_CODE);
+      }
+    }
+  }
+
   private void wifi() {
     WifiManager wifiManager = (WifiManager) this.activity.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     if (wifiManager.isWifiEnabled()) {
