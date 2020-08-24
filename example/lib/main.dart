@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
 
-import 'package:flutter/services.dart';
 import 'package:fl_sys_shortcut/fl_sys_shortcut.dart';
 
 
@@ -61,6 +59,18 @@ class Body extends StatelessWidget {
             Scaffold.of(context).showSnackBar(
               SnackBar(
                 content: Text("Wifi Turned On Check - $b"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+        ),
+        FlatButton(
+          child: Text("Check Silent Mode state"),
+          onPressed: () async {
+            bool b = await FlSysShortcut.checkSilentMode;
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Silent mode Turned On Check - $b"),
                 duration: Duration(seconds: 2),
               ),
             );
