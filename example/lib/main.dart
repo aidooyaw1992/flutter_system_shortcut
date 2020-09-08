@@ -85,7 +85,7 @@ class Body extends StatelessWidget {
         FlatButton(
           child: Text("silent mode"),
           onPressed: () async {
-            await FlSysShortcut.silentMode();
+            await FlSysShortcut.silentMode('silent');
           },
         ),
         FlatButton(

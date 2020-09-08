@@ -56,11 +56,11 @@ class FlSysShortcut {
   }
 
 
-  static Future<Null> silentMode() async{
+  static Future<Null> silentMode(String mode) async{
     if (Platform.isIOS) {
     } else {
       final Map params = <String, dynamic> {
-      'mode': 'silent'
+      'mode': mode
     };
       await _channel.invokeMethod('setMode', params);
     }

@@ -4,8 +4,6 @@ A flutter plugin to use system shortcuts.
 
 ## Getting Started
 
-Thanks to **[Rody Davis](https://github.com/rodydavis)** for IOS implementation.
-
 ### For using funtions and getters related to WIFI settings you need to add these two permissions in your AndroidManifext.xml file
 ```
 <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"></uses-permission>
