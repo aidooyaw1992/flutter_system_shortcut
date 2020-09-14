@@ -63,8 +63,10 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
         final String mode = call.argument("mode");
         setMode(mode);
         break;
-      case "checkSilentMode":
-        result.success(checkSilentMode());
+      case "vibration":
+        setVibration();
+      case "checkRingerMode":
+        result.success(checkRingerMode());
         break;
       case "checkBluetooth":
         result.success(checkBluetooth());
@@ -105,6 +107,16 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
         ActivityCompat.requestPermissions(this.activity, new String[] {Manifest.permission.ACCESS_NOTIFICATION_POLICY}, DO_NOT_DISTURB_REQUEST_CODE);
       }
     }
+  }
+  private int checkRingerMode(){
+    AudioManager audioManager = (AudioManager) this.activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+    int result =  audioManager.getRingerMode();
+    Log.d(TAG, "checkRingerMode: "+ result);
+    return result;
+  }
+  private void setVibration(){
+    AudioManager audioManager = (AudioManager) this.activity.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+    audioManager.setRingerMode(AudioManager.RINGER_MODE_VIBRATE);
   }
 
   private void wifi() {

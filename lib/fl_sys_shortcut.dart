@@ -1,17 +1,16 @@
-
 import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
 
 class FlSysShortcut {
-  static const MethodChannel _channel =
-      const MethodChannel('fl_sys_shortcut');
+  static const MethodChannel _channel = const MethodChannel('fl_sys_shortcut');
 
   static Future<String> get platformVersion async {
     final String version = await _channel.invokeMethod('getPlatformVersion');
     return version;
   }
+
   /// Toggle Wifi.
   ///
   /// If it is already turned on wifi ( ) will turn it off
@@ -47,6 +46,37 @@ class FlSysShortcut {
     }
   }
 
+  //set vibration
+  static Future<Null> vibration() async {
+    if (Platform.isIOS) {
+    } else {
+      await _channel.invokeMethod('vibration');
+    }
+  }
+
+  //set vibration
+  static Future<String> get checkRingerMode async {
+    String state;
+    if (Platform.isIOS) {
+    } else {
+      var ringerId = await _channel.invokeMethod('checkRingerMode');
+      switch (ringerId) {
+        case 0:
+          state = "silent";
+          break;
+        case 1:
+          state = "vibration";
+          break;
+        case 2:
+          state = "normal";
+          break;
+        default:
+          state = null;
+      }
+    }
+    return state;
+  }
+
   /// Return true if the bluetooth is alreay turned on.
   ///
   /// Return false if the bluetooth is turned off.
@@ -55,13 +85,10 @@ class FlSysShortcut {
     return b;
   }
 
-
-  static Future<Null> silentMode(String mode) async{
+  static Future<Null> silentMode(String mode) async {
     if (Platform.isIOS) {
     } else {
-      final Map params = <String, dynamic> {
-      'mode': mode
-    };
+      final Map params = <String, dynamic>{'mode': mode};
       await _channel.invokeMethod('setMode', params);
     }
   }
