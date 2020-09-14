@@ -64,22 +64,40 @@ class Body extends StatelessWidget {
             );
           },
         ),
-        FlatButton(
-          child: Text("Check Silent Mode state"),
-          onPressed: () async {
-            bool b = await FlSysShortcut.checkSilentMode;
-            Scaffold.of(context).showSnackBar(
-              SnackBar(
-                content: Text("Silent mode Turned On Check - $b"),
-                duration: Duration(seconds: 2),
-              ),
-            );
-          },
-        ),
+        // FlatButton(
+        //   child: Text("Check Silent Mode state"),
+        //   onPressed: () async {
+        //     bool b = await FlSysShortcut.checkSilentMode;
+        //     Scaffold.of(context).showSnackBar(
+        //       SnackBar(
+        //         content: Text("Silent mode Turned On Check - $b"),
+        //         duration: Duration(seconds: 2),
+        //       ),
+        //     );
+        //   },
+        // ),
         FlatButton(
           child: Text("Bluetooth"),
           onPressed: () async {
             await FlSysShortcut.bluetooth();
+          },
+        ),
+        FlatButton(
+          child: Text("Vibration"),
+          onPressed: () async {
+            await FlSysShortcut.vibration();
+          },
+        ),
+        FlatButton(
+          child: Text("check ringer mode"),
+          onPressed: () async {
+           String state= await FlSysShortcut.checkRingerMode;
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Ringer mode  Check - $state"),
+                duration: Duration(seconds: 2),
+              ),
+            );
           },
         ),
         FlatButton(
