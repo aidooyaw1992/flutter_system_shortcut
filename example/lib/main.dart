@@ -64,34 +64,35 @@ class Body extends StatelessWidget {
             );
           },
         ),
-        // FlatButton(
-        //   child: Text("Check Silent Mode state"),
-        //   onPressed: () async {
-        //     bool b = await FlSysShortcut.checkSilentMode;
-        //     Scaffold.of(context).showSnackBar(
-        //       SnackBar(
-        //         content: Text("Silent mode Turned On Check - $b"),
-        //         duration: Duration(seconds: 2),
-        //       ),
-        //     );
-        //   },
-        // ),
         FlatButton(
-          child: Text("Bluetooth"),
+          child: Text("Set Bluetooth"),
           onPressed: () async {
             await FlSysShortcut.bluetooth();
           },
         ),
+        
         FlatButton(
-          child: Text("Vibration"),
+          child: Text("Set Ringer Mode normal"),
           onPressed: () async {
-            await FlSysShortcut.vibration();
+            await FlSysShortcut.setRingerMode(RingerMode.normal);
+          },
+        ),
+        FlatButton(
+          child: Text("Set Ringer Mode silent "),
+          onPressed: () async {
+            await FlSysShortcut.setRingerMode(RingerMode.silent);
+          },
+        ),
+        FlatButton(
+          child: Text("Set Ringer mode Vibration"),
+          onPressed: () async {
+            await FlSysShortcut.setRingerMode(RingerMode.vibration);
           },
         ),
         FlatButton(
           child: Text("check ringer mode"),
           onPressed: () async {
-           String state= await FlSysShortcut.checkRingerMode;
+          String state= await FlSysShortcut.checkRingerMode;
             Scaffold.of(context).showSnackBar(
               SnackBar(
                 content: Text("Ringer mode  Check - $state"),
@@ -100,12 +101,7 @@ class Body extends StatelessWidget {
             );
           },
         ),
-        FlatButton(
-          child: Text("silent mode"),
-          onPressed: () async {
-            await FlSysShortcut.silentMode('silent');
-          },
-        ),
+        
         FlatButton(
           child: Text("Check Bluetooth"),
           onPressed: () async {

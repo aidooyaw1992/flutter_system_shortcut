@@ -54,6 +54,16 @@ class FlSysShortcut {
     }
   }
 
+  //set ring mode
+  static Future<Null> setRingerMode(RingerMode mode) async {
+    if (Platform.isIOS) {
+    } else {
+      print(mode.index);
+      final Map params = <String, dynamic>{'mode': mode.index};
+      await _channel.invokeMethod('setRingerMode', params);
+    }
+  }
+
   //set vibration
   static Future<String> get checkRingerMode async {
     String state;
@@ -85,6 +95,7 @@ class FlSysShortcut {
     return b;
   }
 
+  @Deprecated("old function")
   static Future<Null> silentMode(String mode) async {
     if (Platform.isIOS) {
     } else {
@@ -93,3 +104,5 @@ class FlSysShortcut {
     }
   }
 }
+
+enum RingerMode { silent, vibration, normal }
