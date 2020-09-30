@@ -79,20 +79,20 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
     }
   }
 
-//  private void setRingerMode(int id) {
-//    Log.d(TAG, "ring Mode: "+ id);
-//    switch (id){
-//      case 0:
+  private void setRingerMode(int id) {
+    Log.d(TAG, "ring Mode: "+ id);
+    switch (id){
+      case 0:
 //        setSilentMode();
-//      break;
-//      case 1:
-//        setVibration();
-//      break;
-//      case 2:
-//        setNormal();
-//      default:
-//    }
-//  }
+      break;
+      case 1:
+        setVibration();
+      break;
+      case 2:
+        setNormal();
+      default:
+    }
+  }
 
 
   private int checkRingerMode(){
