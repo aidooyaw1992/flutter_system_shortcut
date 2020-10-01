@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.media.AudioManager;
 import android.net.wifi.WifiManager;
 import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -77,6 +78,10 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
       case "isNotificationPolicyAccessGranted":
         result.success(isNotificationPolicyAccessGranted());
         break;
+      case "gotoPolicySettings":
+        gotoPolicySettings();
+        result.success(null);
+        break;
       default:
         result.notImplemented();
     }
@@ -104,7 +109,7 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
       audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
     }
   }
-  
+
   private boolean isAboveMarshmello() {
     return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
   }
@@ -114,6 +119,12 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
       return false;
     }
     return notificationManager.isNotificationPolicyAccessGranted();
+  }
+
+  private void gotoPolicySettings() {
+    Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+    context.startActivity(intent);
   }
 
   private int checkRingerMode(){

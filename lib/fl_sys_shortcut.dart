@@ -90,6 +90,9 @@ class FlSysShortcut {
   static Future<bool> get isNotificationPolicyAccessGranted async {
     return await _channel.invokeMethod('isNotificationPolicyAccessGranted');
   }
+  static void gotoPolicySettings() {
+    _channel.invokeMethod('gotoPolicySettings');
+  }
   /// Return true if the bluetooth is alreay turned on.
   ///
   /// Return false if the bluetooth is turned off.
