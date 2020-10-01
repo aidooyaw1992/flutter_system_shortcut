@@ -27,7 +27,7 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** FlSysShortcutPlugin */
-public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
+public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler, PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
   private static final String TAG = "FlSysShortcutPlugin";
   private static NotificationManager notificationManager;
 
@@ -47,7 +47,7 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
   public static void registerWith(Registrar registrar) {
     FlSysShortcutPlugin instance = new FlSysShortcutPlugin();
     final MethodChannel channel = new MethodChannel(registrar.messenger(), "fl_sys_shortcut");
-    registrar.addRequestPermissionsResultListener(instance);
+    registrar.addRequestPermissionsResultListener(this);
     channel.setMethodCallHandler(instance);
   }
 
@@ -220,5 +220,26 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
     Log.d(TAG, "permissionDenied");
   }
 
+  @Override
+  public boolean onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+    if (requestCode == DO_NOT_DISTURB_REQUEST_CODE) {
+      if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+        //We have the permission
+        Log.d(TAG, "onRequestPermissionsResult: notification access policy is granted");
+        return true;
+      } else {
+        permissionDenied();
+      }
+    }
+    return false;
+  }
 
+  @Override
+  public boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+    if (requestCode == ON_DO_NOT_DISTURB_CALLBACK_CODE ) {
+      Log.d(TAG, "onActivityResult: successful");
+      return true;
+    }
+    return false;
+  }
 }
