@@ -27,12 +27,12 @@ import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.plugin.common.PluginRegistry.Registrar;
 
 /** FlSysShortcutPlugin */
-public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler, PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
+public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, MethodCallHandler, PluginRegistry.ActivityResultListener, PluginRegistry.RequestPermissionsResultListener {
   private static final String TAG = "FlSysShortcutPlugin";
   private static NotificationManager notificationManager;
-
+  private MethodChannel channel;
   private static Context context;
-
+  private Activity activity;
   private final int DO_NOT_DISTURB_REQUEST_CODE = 10001;
   private final int ON_DO_NOT_DISTURB_CALLBACK_CODE = 100;
 
@@ -40,15 +40,16 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler, Pl
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
     context = flutterPluginBinding.getApplicationContext();
     notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    final MethodChannel channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "fl_sys_shortcut");
+    channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "fl_sys_shortcut");
     channel.setMethodCallHandler(new FlSysShortcutPlugin());
   }
 
   public static void registerWith(Registrar registrar) {
     FlSysShortcutPlugin instance = new FlSysShortcutPlugin();
-    final MethodChannel channel = new MethodChannel(registrar.messenger(), "fl_sys_shortcut");
-    registrar.addRequestPermissionsResultListener(this);
-    channel.setMethodCallHandler(instance);
+    instance.channel = new MethodChannel(registrar.messenger(), "fl_sys_shortcut");
+    instance.activity = registrar.activity();
+    registrar.addRequestPermissionsResultListener(instance);
+    instance.channel.setMethodCallHandler(instance);
   }
 
   @Override
@@ -241,5 +242,27 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler, Pl
       return true;
     }
     return false;
+  }
+
+  @Override
+  public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+    binding.addRequestPermissionsResultListener(this);
+  }
+
+  @Override
+  public void onDetachedFromActivityForConfigChanges() {
+    activity = null;
+  }
+
+  @Override
+  public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
+    activity = binding.getActivity();
+    binding.addRequestPermissionsResultListener(this);
+  }
+
+  @Override
+  public void onDetachedFromActivity() {
+    activity = null;
   }
 }
