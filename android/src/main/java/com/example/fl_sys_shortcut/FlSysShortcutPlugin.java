@@ -51,7 +51,7 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
 
   @Override
   public void onMethodCall(@NonNull MethodCall call, @NonNull Result result) {
-    switch (call.method){
+    switch (call.method) {
       case "wifi":
         wifi();
         break;
@@ -61,10 +61,10 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
       case "bluetooth":
         bluetooth();
         break;
-//      case "setRingerMode":
-//        final int id = call.argument("mode");
-//        setRingerMode(id);
-//        break;
+      case "setRingerMode":
+        final int id = call.argument("mode");
+        setRingerMode(id);
+        break;
       case "vibration":
         setVibration();
         break;
@@ -74,26 +74,47 @@ public class FlSysShortcutPlugin implements FlutterPlugin, MethodCallHandler {
       case "checkBluetooth":
         result.success(checkBluetooth());
         break;
+      case "isNotificationPolicyAccessGranted":
+        result.success(isNotificationPolicyAccessGranted());
+        break;
       default:
         result.notImplemented();
     }
   }
 
   private void setRingerMode(int id) {
-    Log.d(TAG, "ring Mode: "+ id);
-    switch (id){
+    Log.d(TAG, "ring Mode: " + id);
+    switch (id) {
       case 0:
-//        setSilentMode();
-      break;
+        setSilentMode();
+        break;
       case 1:
         setVibration();
-      break;
+        break;
       case 2:
         setNormal();
       default:
     }
   }
 
+  void setSilentMode(){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 && notificationManager.isNotificationPolicyAccessGranted()) {
+      notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+      AudioManager audioManager = (AudioManager) this.context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);
+      audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+    }
+  }
+  
+  private boolean isAboveMarshmello() {
+    return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
+  }
+
+  private boolean isNotificationPolicyAccessGranted() {
+    if (!isAboveMarshmello()) {
+      return false;
+    }
+    return notificationManager.isNotificationPolicyAccessGranted();
+  }
 
   private int checkRingerMode(){
     AudioManager audioManager = (AudioManager) this.context.getApplicationContext().getSystemService(Context.AUDIO_SERVICE);

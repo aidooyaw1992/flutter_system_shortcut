@@ -86,7 +86,10 @@ class FlSysShortcut {
     }
     return state;
   }
-
+  /// Check the application has access to change the DND settings
+  static Future<bool> get isNotificationPolicyAccessGranted async {
+    return await _channel.invokeMethod('isNotificationPolicyAccessGranted');
+  }
   /// Return true if the bluetooth is alreay turned on.
   ///
   /// Return false if the bluetooth is turned off.
