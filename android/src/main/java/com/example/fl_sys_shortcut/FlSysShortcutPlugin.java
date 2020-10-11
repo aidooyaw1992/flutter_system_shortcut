@@ -77,6 +77,9 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
       case "checkBluetooth":
         result.success(checkBluetooth());
         break;
+      case "checkAirplaneMode":
+        result.success(checkAirplaneMode());
+        break;
       case "isNotificationPolicyAccessGranted":
         result.success(isNotificationPolicyAccessGranted());
         break;
@@ -111,7 +114,17 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
 //      audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
 //    }
 //  }
-
+private Boolean checkAirplaneMode() {
+  boolean isAirplaneMode;
+  if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1){
+    isAirplaneMode = Settings.System.getInt(context.getContentResolver(),
+            Settings.System.AIRPLANE_MODE_ON, 0) == 1;
+  }else{
+    isAirplaneMode = Settings.Global.getInt(context.getContentResolver(),
+            Settings.Global.AIRPLANE_MODE_ON, 0) == 1;
+  }
+  return isAirplaneMode;
+}
   private boolean isAboveMarshmello() {
     return android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M;
   }

@@ -34,7 +34,10 @@ class FlSysShortcut {
     bool b = await _channel.invokeMethod('checkSilentMode');
     return b;
   }
-
+  static Future<bool> checkAirplaneMode() async {
+    bool airplanemode = await _channel.invokeMethod('checkAirplaneMode');
+    return airplanemode;
+  }
   /// Toggle bluetooth.
   ///
   /// If it is already turned on bluetooth ( ) will turn it off
