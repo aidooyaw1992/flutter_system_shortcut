@@ -60,9 +60,6 @@ class FlSysShortcut {
     } else {
       var ringerId = await _channel.invokeMethod('check_ringer_mode');
       switch (ringerId) {
-        case 0:
-          state = "silent";
-          break;
         case 1:
           state = "vibration";
           break;
