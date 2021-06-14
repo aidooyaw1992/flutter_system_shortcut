@@ -81,7 +81,7 @@ class FlSysShortcut {
     _channel.invokeMethod('goto_policy_settings');
   }
 
-  static Future<bool> checkAirplaneMode() async {
+  static Future<bool> get checkAirplaneMode async {
     bool airplaneMode = await _channel.invokeMethod('check_airplane_mode');
     return airplaneMode;
   }
