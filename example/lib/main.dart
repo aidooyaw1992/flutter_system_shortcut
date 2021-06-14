@@ -129,6 +129,12 @@ class _MyAppState extends State<MyApp> {
                 },
                 child: Text("Set Do not disturb mode"),
               ),
+              ElevatedButton(
+                onPressed: () async {
+                   await FlSysShortcut.checkAirplaneMode;
+                },
+                child: Text("Set Do not disturb mode"),
+              ),
             ],
           ),
         ),
