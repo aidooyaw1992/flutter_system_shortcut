@@ -31,6 +31,8 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
+    private lateinit var notificationManager: NotificationManager
+
     private var _activity: Activity? = null
     private val activity: Activity
         get() = _activity!!
@@ -39,7 +41,7 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, METHOD_CHANNEL_NAME)
         channel.setMethodCallHandler(this)
-
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         context = flutterPluginBinding.applicationContext
         pluginMethods = PluginMethods()
     }
@@ -93,9 +95,48 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             }
             "getPlatformVersion" -> result.success("Android ${Build.VERSION.RELEASE}")
 
+            "is_notification_policy_access_granted" -> result.success(isNotificationPolicyAccessGranted())
+
+            "goto_policy_settings"-> gotoPolicySettings()
+
+            "check_airplane_mode" -> checkAirplaneMode()
             else -> result.notImplemented()
         }
     }
+    private fun isAboveMarshmello(): Boolean {
+        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
+    }
+
+    private fun isNotificationPolicyAccessGranted(): Boolean {
+        return if (!isAboveMarshmello()) {
+            false
+        } else notificationManager.isNotificationPolicyAccessGranted
+    }
+
+    private fun gotoPolicySettings() {
+        val intent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS)
+        } else {
+            TODO("VERSION.SDK_INT < M")
+        }
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+    }
+
+    private fun checkAirplaneMode(): Boolean {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                Settings.System.getInt(
+                    context.contentResolver,
+                    Settings.System.AIRPLANE_MODE_ON, 0
+                ) == 1
+            } else {
+                Settings.Global.getInt(
+                    context.contentResolver,
+                    Settings.Global.AIRPLANE_MODE_ON, 0
+                ) == 1
+            }
+    }
+
 
     private fun checkNotificationPolicyPermission(): Boolean {
         Log.d("permissions", "checking Permissions")
@@ -172,19 +213,19 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
                 Log.d(
                     "permission result",
                     "onRequestPermissionsResult: notification access policy is granted"
-                );
+                )
                 return true
             } else {
                 permissionDenied()
             }
         }
-        return false;
+        return false
     }
 
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?): Boolean {
         if (requestCode == ON_DO_NOT_DISTURB_CALLBACK_CODE) {
-            Log.d("onActivityResult", "result: successful");
+            Log.d("onActivityResult", "result: successful")
             return true
         }
         return false

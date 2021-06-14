@@ -73,8 +73,18 @@ class FlSysShortcut {
     return state;
   }
 
+  /// Check the application has access to change the DND settings
+  static Future<bool> get isNotificationPolicyAccessGranted async {
+    return await _channel.invokeMethod('is_notification_policy_access_granted');
+  }
+  static void gotoPolicySettings() {
+    _channel.invokeMethod('goto_policy_settings');
+  }
 
-
+  static Future<bool> checkAirplaneMode() async {
+    bool airplaneMode = await _channel.invokeMethod('check_airplane_mode');
+    return airplaneMode;
+  }
 }
 
 enum RingerMode {  normal, vibration }
