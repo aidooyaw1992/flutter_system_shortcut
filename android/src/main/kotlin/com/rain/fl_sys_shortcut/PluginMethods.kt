@@ -1,10 +1,11 @@
 package com.rain.fl_sys_shortcut
 
-import android.app.Activity
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.media.AudioManager
 import android.net.wifi.WifiManager
+import android.os.Build
+import android.provider.Settings
 import android.util.Log
 
 
@@ -34,6 +35,8 @@ class PluginMethods : BaseMethods {
         Log.d("checkRingerMode", "result: $result")
         return result
     }
+
+
 
     override fun switchRingerMode(ringerMode: Int, context: Context) {
         val audioManager: AudioManager =

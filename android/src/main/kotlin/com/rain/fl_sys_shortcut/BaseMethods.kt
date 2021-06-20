@@ -7,6 +7,7 @@ interface BaseMethods {
     fun checkWifiAvailability(context: Context): Boolean
     fun checkBluetoothAvailability(): Boolean
     fun checkRingerMode(context: Context): Int
+//    fun checkAirplaneMode(context: Context): Boolean
 
     fun switchRingerMode(ringerMode: Int, context: Context)
     fun switchWifi(isEnabled: Boolean, context: Context)

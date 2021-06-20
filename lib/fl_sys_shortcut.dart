@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:io';
 
@@ -17,6 +16,7 @@ class FlSysShortcut {
     bool b = await _channel.invokeMethod('check_wifi');
     return b;
   }
+
   static Future<bool> get checkBle async {
     bool b = await _channel.invokeMethod('check_bluetooth');
     return b;
@@ -30,18 +30,27 @@ class FlSysShortcut {
     }
   }
 
-
-  static Future<Null>switchBluetooth(bool status) async {
+  static Future<Null> switchBluetooth(bool status) async {
     if (Platform.isIOS) {
     } else {
       final Map params = <String, dynamic>{'is_enabled': status};
       await _channel.invokeMethod('switch_bluetooth', params);
     }
   }
-  static Future<Null>setDoNotDisturbMode() async {
+
+  static Future<Null> setDoNotDisturbMode() async {
     if (Platform.isIOS) {
     } else {
       await _channel.invokeMethod('set_do_not_disturb');
+    }
+  }
+
+  static Future<bool?> get checkAirplaneMode async {
+    if (Platform.isIOS) {
+    } else {
+      bool airplaneMode = await _channel.invokeMethod('check_airplane_mode');
+      print(airplaneMode);
+      return airplaneMode;
     }
   }
 
@@ -54,6 +63,7 @@ class FlSysShortcut {
       await _channel.invokeMethod('switch_ringer_mode', params);
     }
   }
+
   static Future<String?> get checkRingerMode async {
     String? state;
     if (Platform.isIOS) {
@@ -77,14 +87,12 @@ class FlSysShortcut {
   static Future<bool> get isNotificationPolicyAccessGranted async {
     return await _channel.invokeMethod('is_notification_policy_access_granted');
   }
+
   static void gotoPolicySettings() {
     _channel.invokeMethod('goto_policy_settings');
   }
 
-  static Future<bool> get checkAirplaneMode async {
-    bool airplaneMode = await _channel.invokeMethod('check_airplane_mode');
-    return airplaneMode;
-  }
+
 }
 
-enum RingerMode {  normal, vibration }
+enum RingerMode { normal, vibration }

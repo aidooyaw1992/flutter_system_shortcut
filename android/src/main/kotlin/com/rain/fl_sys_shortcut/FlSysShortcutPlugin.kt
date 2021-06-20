@@ -29,6 +29,7 @@ import io.flutter.plugin.common.PluginRegistry
 /** FlSysShortcutPlugin */
 class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     PluginRegistry.RequestPermissionsResultListener, PluginRegistry.ActivityResultListener {
+    private lateinit var pluginMethods: PluginMethods
     private lateinit var channel: MethodChannel
     private lateinit var context: Context
     private lateinit var notificationManager: NotificationManager
@@ -36,21 +37,28 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
     private var _activity: Activity? = null
     private val activity: Activity
         get() = _activity!!
-    private lateinit var pluginMethods: PluginMethods
+
 
     override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
+        Log.d("engine", "onAttachedToEngine: engine is attached")
         channel = MethodChannel(flutterPluginBinding.binaryMessenger, METHOD_CHANNEL_NAME)
         channel.setMethodCallHandler(this)
-        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         context = flutterPluginBinding.applicationContext
+        notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        Log.d("context", "onAttachedToEngine: $context")
         pluginMethods = PluginMethods()
     }
 
     companion object {
         @JvmStatic
         fun registerWith(registrar: PluginRegistry.Registrar) {
-            val channel = MethodChannel(registrar.messenger(), METHOD_CHANNEL_NAME)
-            channel.setMethodCallHandler(FlSysShortcutPlugin())
+            val instance = FlSysShortcutPlugin()
+            instance.pluginMethods = PluginMethods()
+            instance.channel = MethodChannel(registrar.messenger(), "fl_sys_shortcut")
+            instance.channel.setMethodCallHandler(instance)
+            instance.context = registrar.context()
+
+            registrar.addRequestPermissionsResultListener(instance)
         }
     }
 
@@ -93,15 +101,33 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
             "set_do_not_disturb" -> {
                 setSilentMode()
             }
+
+            "check_airplane_mode" ->{
+                result.success(checkAirplaneMode(context = context))
+            }
+
             "getPlatformVersion" -> result.success("Android ${Build.VERSION.RELEASE}")
 
             "is_notification_policy_access_granted" -> result.success(isNotificationPolicyAccessGranted())
 
             "goto_policy_settings"-> gotoPolicySettings()
 
-            "check_airplane_mode" -> checkAirplaneMode()
             else -> result.notImplemented()
         }
+    }
+
+    private fun checkAirplaneMode(context: Context): Boolean {
+        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
+             Settings.System.getInt(
+                 context.contentResolver,
+                 Settings.System.AIRPLANE_MODE_ON, 0
+             ) === 1
+         } else {
+             Settings.Global.getInt(
+                 context.contentResolver,
+                 Settings.Global.AIRPLANE_MODE_ON, 0
+             ) === 1
+         }
     }
     private fun isAboveMarshmello(): Boolean {
         return Build.VERSION.SDK_INT >= Build.VERSION_CODES.M
@@ -123,19 +149,6 @@ class FlSysShortcutPlugin : FlutterPlugin, MethodCallHandler, ActivityAware,
         context.startActivity(intent)
     }
 
-    private fun checkAirplaneMode(): Boolean {
-        return if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                Settings.System.getInt(
-                    context.contentResolver,
-                    Settings.System.AIRPLANE_MODE_ON, 0
-                ) == 1
-            } else {
-                Settings.Global.getInt(
-                    context.contentResolver,
-                    Settings.Global.AIRPLANE_MODE_ON, 0
-                ) == 1
-            }
-    }
 
 
     private fun checkNotificationPolicyPermission(): Boolean {
