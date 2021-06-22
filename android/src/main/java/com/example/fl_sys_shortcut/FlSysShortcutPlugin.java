@@ -16,6 +16,7 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
+import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.plugins.FlutterPlugin;
 import io.flutter.embedding.engine.plugins.activity.ActivityAware;
 import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding;
@@ -33,23 +34,28 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
   private MethodChannel channel;
   private static Context context;
   private Activity activity;
+  private Intent launchIntent;
   private final int DO_NOT_DISTURB_REQUEST_CODE = 10001;
   private final int ON_DO_NOT_DISTURB_CALLBACK_CODE = 100;
 
   @Override
   public void onAttachedToEngine(@NonNull FlutterPluginBinding flutterPluginBinding) {
+    Log.d(TAG, "onAttachedToEngine: im here at on Attached to engine");
     context = flutterPluginBinding.getApplicationContext();
     notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-    channel = new MethodChannel(flutterPluginBinding.getFlutterEngine().getDartExecutor(), "fl_sys_shortcut");
+    channel = new MethodChannel(flutterPluginBinding.getBinaryMessenger(), "fl_sys_shortcut");
     channel.setMethodCallHandler(new FlSysShortcutPlugin());
   }
 
   public static void registerWith(Registrar registrar) {
+    Log.d(TAG, "registerWith: im here at register with");
     FlSysShortcutPlugin instance = new FlSysShortcutPlugin();
     instance.channel = new MethodChannel(registrar.messenger(), "fl_sys_shortcut");
     instance.activity = registrar.activity();
+    Log.d("activity", "registerWith: activity is "+ instance.activity);
     registrar.addRequestPermissionsResultListener(instance);
     instance.channel.setMethodCallHandler(instance);
+
   }
 
   @Override
@@ -107,13 +113,8 @@ public class FlSysShortcutPlugin implements FlutterPlugin, ActivityAware, Method
     }
   }
 
-//  void setSilentMode(){
-//    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1 && notificationManager.isNotificationPolicyAccessGranted()) {
-//      notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
-//      AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-//      audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-//    }
-//  }
+
+
 private Boolean checkAirplaneMode() {
   boolean isAirplaneMode;
   if(Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR1){
@@ -160,45 +161,23 @@ private Boolean checkAirplaneMode() {
 
   private void wifi() {
     WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+      Log.d(TAG, "wifi: status"+ wifiManager.isWifiEnabled());
     if (wifiManager.isWifiEnabled()) {
       wifiManager.setWifiEnabled(false);
+      Log.d(TAG, "wifi: is set to false");
     } else {
+
       wifiManager.setWifiEnabled(true);
+      Log.d(TAG, "wifi: is set to true");
     }
   }
 
   private boolean checkWifi() {
-    WifiManager wifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
+    WifiManager wifiManager = (WifiManager) context.getApplicationContext().getSystemService(Context.WIFI_SERVICE);
     return wifiManager.isWifiEnabled();
   }
 
-  private void setSilentMode() {
-    if(checkNotificationPolicyPermission()){
 
-      NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager.isNotificationPolicyAccessGranted()) {
-          notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
-          AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-          audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
-
-      }else {
-        Log.d(TAG, "silentMode: notification access policy wasnt granted");
-        // Open Setting screen to ask for permisssion
-        Intent intent = null;
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-          intent = new Intent(android.provider.Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
-        }
-        activity.startActivityForResult( intent, ON_DO_NOT_DISTURB_CALLBACK_CODE );
-
-      }
-
-    }else{
-      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-        ActivityCompat.requestPermissions(this.activity, new String[] {Manifest.permission.ACCESS_NOTIFICATION_POLICY}, DO_NOT_DISTURB_REQUEST_CODE);
-      }
-    }
-  }
 
 
   private void bluetooth() {
@@ -259,23 +238,51 @@ private Boolean checkAirplaneMode() {
 
   @Override
   public void onAttachedToActivity(@NonNull ActivityPluginBinding binding) {
-    activity = binding.getActivity();
+    this.activity = binding.getActivity();
+    Log.d("plugin", "onAttachedToActivity: activity has been attached");
     binding.addRequestPermissionsResultListener(this);
   }
 
   @Override
   public void onDetachedFromActivityForConfigChanges() {
-    activity = null;
+    this.activity = null;
   }
 
   @Override
   public void onReattachedToActivityForConfigChanges(@NonNull ActivityPluginBinding binding) {
-    activity = binding.getActivity();
+    this.activity = binding.getActivity();
     binding.addRequestPermissionsResultListener(this);
   }
 
   @Override
   public void onDetachedFromActivity() {
-    activity = null;
+    this.activity = null;
+  }
+
+
+  private void setSilentMode() {
+    if(checkNotificationPolicyPermission()){
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && notificationManager.isNotificationPolicyAccessGranted()) {
+        Log.d(TAG, "setSilentMode: above M and isNotificationPolicyAccessGranted == true");
+        notificationManager.setInterruptionFilter(NotificationManager.INTERRUPTION_FILTER_NONE);
+        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
+        audioManager.setRingerMode(AudioManager.RINGER_MODE_SILENT);
+
+      }else {
+        Log.d(TAG, "silentMode: notification access policy wasn't granted");
+        // Open Setting screen to ask for permission
+          if(this.activity != null){
+            Intent intent = new Intent(Settings.ACTION_NOTIFICATION_POLICY_ACCESS_SETTINGS);
+            this.activity.startActivityForResult( intent, ON_DO_NOT_DISTURB_CALLBACK_CODE );
+          }else{
+            gotoPolicySettings();
+          }
+      }
+
+    }else{
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+        ActivityCompat.requestPermissions(this.activity, new String[] {Manifest.permission.ACCESS_NOTIFICATION_POLICY}, DO_NOT_DISTURB_REQUEST_CODE);
+      }
+    }
   }
 }

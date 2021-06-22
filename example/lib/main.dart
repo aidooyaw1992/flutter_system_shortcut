@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_sys_shortcut/fl_sys_shortcut.dart';
 
-
 void main() => runApp(Main());
 
 class Main extends StatelessWidget {
@@ -67,41 +66,45 @@ class Body extends StatelessWidget {
         FlatButton(
           child: Text("Set Bluetooth"),
           onPressed: () async {
-            await FlSysShortcut.bluetooth();
+            var status = await FlSysShortcut.bluetooth();
+            if (status == null) {
+            } else {
+              return status;
+            }
           },
         ),
-        
-        // FlatButton(
-        //   child: Text("Set Ringer Mode normal"),
-        //   onPressed: () async {
-        //     await FlSysShortcut.setRingerMode(RingerMode.normal);
-        //   },
-        // ),
-        // FlatButton(
-        //   child: Text("Set Ringer Mode silent "),
-        //   onPressed: () async {
-        //     await FlSysShortcut.setRingerMode(RingerMode.silent);
-        //   },
-        // ),
-        // FlatButton(
-        //   child: Text("Set Ringer mode Vibration"),
-        //   onPressed: () async {
-        //     await FlSysShortcut.setRingerMode(RingerMode.vibration);
-        //   },
-        // ),
-        // FlatButton(
-        //   child: Text("check ringer mode"),
-        //   onPressed: () async {
-        //   String state= await FlSysShortcut.checkRingerMode;
-        //     Scaffold.of(context).showSnackBar(
-        //       SnackBar(
-        //         content: Text("Ringer mode  Check - $state"),
-        //         duration: Duration(seconds: 2),
-        //       ),
-        //     );
-        //   },
-        // ),
-        
+
+        FlatButton(
+          child: Text("Set Ringer Mode normal"),
+          onPressed: () async {
+            await FlSysShortcut.setRingerMode(RingerMode.normal);
+          },
+        ),
+        FlatButton(
+          child: Text("Set Ringer Mode silent "),
+          onPressed: () async {
+            await FlSysShortcut.setRingerMode(RingerMode.silent);
+          },
+        ),
+        FlatButton(
+          child: Text("Set Ringer mode Vibration"),
+          onPressed: () async {
+            await FlSysShortcut.setRingerMode(RingerMode.vibration);
+          },
+        ),
+        FlatButton(
+          child: Text("check ringer mode"),
+          onPressed: () async {
+          String state= await FlSysShortcut.checkRingerMode;
+            Scaffold.of(context).showSnackBar(
+              SnackBar(
+                content: Text("Ringer mode  Check - $state"),
+                duration: Duration(seconds: 2),
+              ),
+            );
+          },
+        ),
+
         FlatButton(
           child: Text("Check Bluetooth"),
           onPressed: () async {

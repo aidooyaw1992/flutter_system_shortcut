@@ -34,10 +34,12 @@ class FlSysShortcut {
     bool b = await _channel.invokeMethod('checkSilentMode');
     return b;
   }
+
   static Future<bool> checkAirplaneMode() async {
     bool airplanemode = await _channel.invokeMethod('checkAirplaneMode');
     return airplanemode;
   }
+
   /// Toggle bluetooth.
   ///
   /// If it is already turned on bluetooth ( ) will turn it off
@@ -45,7 +47,10 @@ class FlSysShortcut {
   static Future<Null> bluetooth() async {
     if (Platform.isIOS) {
     } else {
-      await _channel.invokeMethod('bluetooth');
+      var status = await _channel.invokeMethod('bluetooth');
+      if (status != null) {
+        return status;
+      }
     }
   }
 
@@ -89,19 +94,25 @@ class FlSysShortcut {
     }
     return state;
   }
+
   /// Check the application has access to change the DND settings
   static Future<bool> get isNotificationPolicyAccessGranted async {
     return await _channel.invokeMethod('isNotificationPolicyAccessGranted');
   }
+
   static void gotoPolicySettings() {
     _channel.invokeMethod('gotoPolicySettings');
   }
+
   /// Return true if the bluetooth is alreay turned on.
   ///
   /// Return false if the bluetooth is turned off.
   static Future<bool> get checkBluetooth async {
     bool b = await _channel.invokeMethod('checkBluetooth');
-    return b;
+    if (b != null) {
+      return b;
+    }
+    return null;
   }
 
   @Deprecated("old function")
