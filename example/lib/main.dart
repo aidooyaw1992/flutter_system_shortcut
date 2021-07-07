@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 import 'package:fl_sys_shortcut/fl_sys_shortcut.dart';
 
-
 void main() => runApp(Main());
 
 class Main extends StatelessWidget {
@@ -67,10 +66,14 @@ class Body extends StatelessWidget {
         FlatButton(
           child: Text("Set Bluetooth"),
           onPressed: () async {
-            await FlSysShortcut.bluetooth();
+            var status = await FlSysShortcut.bluetooth();
+            if (status == null) {
+            } else {
+              return status;
+            }
           },
         ),
-        
+
         FlatButton(
           child: Text("Set Ringer Mode normal"),
           onPressed: () async {
@@ -101,7 +104,7 @@ class Body extends StatelessWidget {
             );
           },
         ),
-        
+
         FlatButton(
           child: Text("Check Bluetooth"),
           onPressed: () async {
